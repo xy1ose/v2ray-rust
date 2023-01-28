@@ -1,4 +1,4 @@
-name: Rust
+name: Test MacOS Cross-Build aarch64
 
 on:
   push:
@@ -32,12 +32,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: Swatinem/rust-cache@v2
       - name: Install Rust toolchain
         run: |
           rustup default stable
           rustup toolchain install stable
           rustup target add aarch64-apple-darwin
+      - uses: Swatinem/rust-cache@v2
       - name: Install Protoc
         uses: arduino/setup-protoc@v1
         with:
@@ -47,8 +47,8 @@ jobs:
           SDKROOT=$(xcrun -sdk macosx --show-sdk-path) \
           MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx --show-sdk-platform-version) \
           cargo build --release --target=aarch64-apple-darwin
-      - name: Run tests
-        run: |
-          SDKROOT=$(xcrun -sdk macosx --show-sdk-path) \
-          MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx --show-sdk-platform-version) \
-          cargo test --release --target=aarch64-apple-darwin
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: v2ray-rust-${{ github.sha }}-aarch64-apple-darwin
+          path: target/aarch64-apple-darwin/release/v2ray-rust
