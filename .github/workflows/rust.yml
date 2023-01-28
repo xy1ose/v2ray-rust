@@ -78,9 +78,23 @@ jobs:
       run: |
         brew install coreutils
 
+    - name: Set up cargo cache
+      uses: actions/cache@v3
+      continue-on-error: false
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/            
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: ${{ runner.os }}-cargo-
+
     - name: Install Rust (rustup)
-      run: rustup update ${{ matrix.config.rust }} --no-self-update && rustup default ${{ matrix.config.rust }}
+      run: rustup update ${{ matrix.config.rust }} && rustup default ${{ matrix.config.rust }}
       shell: bash
+
     - run: rustup target add ${{ matrix.config.target_triple }}
 
     - name: Install Protoc
@@ -88,37 +102,6 @@ jobs:
       with:
         repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Get rust version
-      id: rust-version
-      run: echo "version=$(rustc --version)" >> $GITHUB_OUTPUT
-
-    - name: Cache cargo index
-      uses: actions/cache@v3.3.1
-      with:
-        path: ~/.cargo/registry/index
-        key: index-${{ runner.os }}-${{ github.run_number }}
-        restore-keys: |
-          index-${{ runner.os }}-
-
-          #    - name: Create lockfile
-          #      run: cargo generate-lockfile
-      
-    - name: Cache cargo registry
-      uses: actions/cache@v3.3.1
-      with:
-        path: ~/.cargo/registry/cache
-        key: registry-${{ runner.os }}-${{ steps.rust-version.outputs.version }}-${{ hashFiles('Cargo.lock') }}
-
-    - name: Fetch dependencies
-      run: cargo fetch
-    
-    - name: Cache target directory
-      uses: actions/cache@v3.3.1
-      with:
-        path: target
-        key: cache-target-${{ runner.os }}-${{ steps.rust-version.outputs.version }}-${{ hashFiles('Cargo.lock') }}
-
-        
     - name: Build
       shell: bash
       run: |
