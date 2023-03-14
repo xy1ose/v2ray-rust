@@ -8,6 +8,8 @@ on:
     paths-ignore: 
       - 'README.md'
       - 'LICENSE'
+      - '.github/**'
+      - '!.github/workflows/rust.yml'
       
   pull_request:
     branches: 
@@ -16,6 +18,8 @@ on:
     paths-ignore: 
       - 'README.md'
       - 'LICENSE'
+      - '.github/**'
+      - '!.github/workflows/rust.yml'
       
   release:
     types: 
